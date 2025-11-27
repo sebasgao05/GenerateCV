@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generar CV en PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="https://unpkg.com/i18next@23.7.6/dist/umd/i18next.min.js"></script>
+</head>
+<body>
+  <div class="language-switch">
+    <button type="button" id="toggle-lang" class="btn btn-ghost">ES / EN</button>
+    <button type="button" id="toggle-theme" class="btn btn-ghost" data-i18n="btn_theme_dark">Tema oscuro</button>
+  </div>
+  <div class="layout">
+    <aside class="panel">
+      <div class="pill" data-i18n="pill"><span></span>Lista completa en PDF</div>
+      <h1 data-i18n="hero_title">Genera tu CV con los datos clave</h1>
+      <p data-i18n="hero_body">Completa los campos obligatorios y agrega los opcionales que necesites (experiencia, educación, habilidades, idiomas y secciones libres). Al terminar, exporta el CV en PDF listo para compartir.</p>
+      <p class="note" data-i18n="hero_tip">Tip: Los archivos en <strong>baseCV/</strong> son referencia del contenido esperado; adapta los campos a tu perfil.</p>
+    </aside>
+
+    <section class="section instructions">
+      <h2>Instrucciones</h2>
+      <p>Completa cada sección siguiendo el orden: Nombre, Rol, Contacto, Perfil, Proyectos, Experiencia, Educación, Certificaciones y Competencias. Usa “Agregar” para añadir bloques. La foto debe ser una imagen (png/jpg). Genera la vista previa y luego descarga.</p>
+    </section>
+
+    <form id="cv-form">
+      <div class="section">
+        <h2 data-i18n="section_required">Datos obligatorios <span class="star">*</span></h2>
+        <div class="grid">
+          <div>
+            <label for="name"><span class="i18n-text" data-i18n-text="label_name">Nombre completo</span> <span class="star-strong">**</span></label>
+            <input id="name" name="name" type="text" required placeholder="Ej. David Barrera" data-placeholder="placeholder_name">
+          </div>
+          <div>
+            <label for="role"><span class="i18n-text" data-i18n-text="label_role">Rol o título</span> <span class="star-strong">**</span></label>
+            <input id="role" name="role" type="text" required placeholder="Ej. Ingeniero de Software" data-placeholder="placeholder_role">
+          </div>
+          <div>
+            <label for="email"><span class="i18n-text" data-i18n-text="label_email">Email</span> <span class="star-strong">**</span></label>
+            <input id="email" name="email" type="email" required placeholder="correo@ejemplo.com" data-placeholder="placeholder_email">
+          </div>
+          <div>
+            <label for="phone"><span class="i18n-text" data-i18n-text="label_phone">Teléfono</span> <span class="star-strong">**</span></label>
+            <input id="phone" name="phone" type="text" required placeholder="+57 300 000 0000" data-placeholder="placeholder_phone">
+          </div>
+          <div>
+            <label for="location"><span class="i18n-text" data-i18n-text="label_location">Ubicación</span> </label>
+            <input id="location" name="location" type="text" required placeholder="Ciudad, País" data-placeholder="placeholder_location">
+          </div>
+          <div>
+            <label for="website"><span class="i18n-text" data-i18n-text="label_website">Sitio web (opcional)</span></label>
+            <input id="website" name="website" type="url" placeholder="https://tu-sitio.com" data-placeholder="placeholder_website">
+          </div>
+          <div>
+            <label for="linkedin"><span class="i18n-text" data-i18n-text="label_linkedin">LinkedIn (opcional)</span></label>
+            <input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/usuario" data-placeholder="placeholder_linkedin">
+          </div>
+          <div>
+            <label for="summary"><span class="i18n-text" data-i18n-text="label_summary">Perfil profesional</span> </label>
+            <textarea id="summary" name="summary" required placeholder="Resumen breve de tu experiencia y enfoque." data-placeholder="placeholder_summary"></textarea>
+          </div>
+          <div>
+            <label for="photo"><span class="i18n-text" data-i18n-text="label_photo">Foto (opcional)</span></label>
+            <input id="photo" name="photo" type="file" accept="image/*">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0;"><span class="i18n-text" data-i18n-text="section_projects">Proyectos personales</span></h2>
+          <button class="btn btn-ghost" type="button" id="add-project" data-i18n="btn_add_project">Agregar proyecto</button>
+        </div>
+        <div id="projects-list" class="grid"></div>
+        <p class="note" data-i18n="hint_projects">Añade título y descripción breve de cada proyecto.</p>
+      </div>
+
+      <div class="section">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0;"><span class="i18n-text" data-i18n-text="section_experience">Experiencia</span> <span class="star">*</span></h2>
+          <button class="btn btn-ghost" type="button" id="add-experience" data-i18n="btn_add_experience">Agregar experiencia</button>
+        </div>
+        <div id="experience-list" class="grid"></div>
+        <p class="note" data-i18n="hint_experience">Suma tantos roles como necesites. Al menos uno es obligatorio.</p>
+      </div>
+
+      <div class="section">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0;"><span class="i18n-text" data-i18n-text="section_education">Educación</span> <span class="star">*</span></h2>
+          <button class="btn btn-ghost" type="button" id="add-education" data-i18n="btn_add_education">Agregar educación</button>
+        </div>
+        <div id="education-list" class="grid"></div>
+      </div>
+
+      <div class="section grid">
+        <div>
+          <h2><span class="i18n-text" data-i18n-text="section_skills">Habilidades</span> <span class="star">*</span></h2>
+          <label for="skills" data-i18n="label_skills">Lista separada por comas</label>
+          <input id="skills" name="skills" type="text" required placeholder="Go, Python, AWS, SQL, liderazgo" data-placeholder="placeholder_skills">
+        </div>
+        <div>
+          <h2><span class="i18n-text" data-i18n-text="section_languages">Idiomas</span> <span class="star">*</span></h2>
+          <label for="languages" data-i18n="label_languages">Con nivel o certificación</label>
+          <input id="languages" name="languages" type="text" required placeholder="Español (nativo), Inglés (B2)" data-placeholder="placeholder_languages">
+        </div>
+        <div>
+          <h2><span class="i18n-text" data-i18n-text="section_other">Otras competencias</span></h2>
+          <label for="other_skills" data-i18n="label_other">Texto libre</label>
+          <textarea id="other_skills" name="other_skills" rows="3" placeholder="Comunicación, liderazgo, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0;"><span class="i18n-text" data-i18n-text="section_custom">Secciones libres (opcional)</span></h2>
+          <button class="btn btn-ghost" type="button" id="add-custom" data-i18n="btn_add_custom">Agregar bloque</button>
+        </div>
+        <div id="custom-list" class="grid"></div>
+        <p class="note" data-i18n="hint_custom">Úsalo para proyectos, certificaciones, voluntariado u otro apartado personalizado.</p>
+      </div>
+
+      <div class="section">
+        <div class="actions" style="justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0;" data-i18n="section_certs">Cursos y certificaciones</h2>
+          <button class="btn btn-ghost" type="button" id="add-cert" data-i18n="btn_add_cert">Agregar certificado</button>
+        </div>
+        <div id="cert-list" class="grid"></div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" data-i18n="btn_generate">Vista previa</button>
+        <button type="reset" class="btn btn-ghost" data-i18n="btn_reset">Limpiar formulario</button>
+        <div class="font-picker">
+          <label for="font-select" data-i18n="label_font">Fuente</label>
+          <select id="font-select" name="font-select">
+            <option value="times" selected>Times</option>
+            <option value="helvetica">Helvetica</option>
+            <option value="courier">Courier</option>
+          </select>
+        </div>
+      </div>
+      <div id="form-message" class="form-message" role="alert"></div>
+    </form>
+
+    <section class="preview">
+      <div class="preview-header">
+        <h2 data-i18n="preview_title">Vista previa del PDF</h2>
+        <button type="button" id="download-btn" class="btn btn-primary" disabled data-i18n="btn_download">Descargar PDF</button>
+      </div>
+      <iframe id="pdf-preview" title="PDF preview"></iframe>
+    </section>
+    <footer class="footer">
+      <div class="footer-line"></div>
+      <p>© 2025 Hecho con <span class="heart">❤</span> por David Barrera</p>
+      <p>Desarrollado con HTML, CSS, JS (jsPDF, i18next)</p>
+      <p>Desplegado en AWS Amplify</p>
+    </footer>
+  </div>
+
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script defer src="logic/app.js"></script>
+</body>
+</html>
