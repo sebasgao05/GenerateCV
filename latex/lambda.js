@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const TEMPLATE_FILE = 'template.tex';
-const OUTPUT_FILE = 'cv.pdf';
+const OUTPUT_FILE = 'document.pdf';
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -13,11 +13,15 @@ function escapeLatex(text) {
     if (!text) return '';
     return text
         .replace(/\\/g, '\\textbackslash{}')
-        .replace(/[&%$#_{}]/g, '\\$&')
-        .replace(/\~/g, '\\textasciitilde{}')
-        .replace(/\^/g, '\\textasciicircum{}')
-        .replace(/€/g, '\\texteuro{}')
-        .replace(/€/g, '\\EUR{}');
+        .replace(/&/g, '\\&')
+        .replace(/%/g, '\\%')
+        .replace(/\$/g, '\\$')
+        .replace(/#/g, '\\#')
+        .replace(/{/g, '\\{')
+        .replace(/}/g, '\\}')
+        .replace(/_/g, '\\_')
+        .replace(/~/g, '\\textasciitilde{}')
+        .replace(/\^/g, '\\textasciicircum{}');
 }
 
 function generateExperience(experiences) {
@@ -33,13 +37,14 @@ function generateExperience(experiences) {
         const end = escapeLatex(exp.end || '');
         const dateRange = start || end ? `${start} - ${end}` : '';
         
-        latex += `\\cventry{${dateRange}}{${position}}{${company}}{}{}{}`;
+        latex += `\\textbf{${position}} \\\\n`;
+        latex += `\\emph{${company}} ${dateRange}\\\n`;
         
         if (exp.details) {
             const details = escapeLatex(exp.details);
             const bullets = details.split('\n').filter(Boolean);
             for (const bullet of bullets) {
-                latex += `\n\\begin{itemize}\n\\item ${bullet}\n\\end{itemize}`;
+                latex += `• ${bullet}\\\n`;
             }
         }
         latex += '\n';
@@ -60,10 +65,11 @@ function generateEducation(education) {
         const eduEnd = escapeLatex(edu.eduEnd || '');
         const dateRange = eduStart || eduEnd ? `${eduStart} - ${eduEnd}` : '';
         
-        latex += `\\cventry{${dateRange}}{${program}}{${institution}}{}{}{}`;
+        latex += `\\textbf{${program}} \\\n`;
+        latex += `\\emph{${institution}} ${dateRange}\\\n`;
         
         if (edu.eduDetails) {
-            latex += `\n\\begin{itemize}\n\\item ${escapeLatex(edu.eduDetails)}\n\\end{itemize}`;
+            latex += `${escapeLatex(edu.eduDetails)}\\n`;
         }
         latex += '\n';
     }
@@ -80,7 +86,8 @@ function generateProjects(projects) {
         const title = escapeLatex(proj.projectTitle || '');
         const desc = escapeLatex(proj.projectDesc || '');
         
-        latex += `\\cventry{}{${title}}{}{}{}{${desc}}\n`;
+        latex += `\\textbf{${title}} \\\n`;
+        latex += `${desc}\\\n`;
     }
     return latex;
 }
@@ -96,7 +103,8 @@ function generateCerts(certs) {
         const org = escapeLatex(cert.certOrg || '');
         const year = escapeLatex(cert.certYear || '');
         
-        latex += `\\cventry{${year}}{${title}}{${org}}{}{}{}\n`;
+        latex += `\\textbf{${title}} \\\n`;
+        latex += `${org} ${year}\\\n`;
     }
     return latex;
 }
@@ -105,6 +113,7 @@ function render(data) {
     let template = fs.readFileSync(TEMPLATE_FILE, 'utf-8');
     
     template = template.replace(/__NAME__/g, escapeLatex(data.name || ''));
+    template = template.replace(/__ROLE__/g, escapeLatex(data.role || ''));
     template = template.replace(/__PHONE__/g, escapeLatex(data.phone || ''));
     template = template.replace(/__EMAIL__/g, escapeLatex(data.email || ''));
     template = template.replace(/__LOCATION__/g, escapeLatex(data.location || ''));
@@ -115,9 +124,6 @@ function render(data) {
     template = template.replace(/__PROJECTS__/g, generateProjects(data.projects));
     template = template.replace(/__CERTS__/g, generateCerts(data.certs));
     template = template.replace(/__SKILLS__/g, escapeLatex(data.skills || ''));
-    template = template.replace(/__LANGUAGES__/g, escapeLatex(data.languages || ''));
-    template = template.replace(/__OTHER__/g, data.other ? `\\section{Otros}\n${escapeLatex(data.other)}` : '');
-    template = template.replace(/__PHOTO_DATA__/g, data.photo ? data.photo : '');
     
     fs.writeFileSync('document.tex', template);
     return template;
@@ -168,7 +174,8 @@ async function handler(event) {
         await compileLatex();
         
         if (!fs.existsSync(OUTPUT_FILE)) {
-            throw new Error('PDF not generated');
+            const logContent = fs.readFileSync('document.log', 'utf-8');
+            throw new Error(`PDF not generated. Log: ${logContent.slice(-1000)}`);
         }
         
         const pdfBuffer = fs.readFileSync(OUTPUT_FILE);
