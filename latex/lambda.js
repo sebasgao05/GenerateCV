@@ -166,7 +166,7 @@ function buildHeader(data) {
     const contactParts = [];
     if (data.location) contactParts.push(escapeLatex(data.location));
     if (data.phone) contactParts.push(escapeLatex(data.phone));
-    if (data.email) contactParts.push(`\\hrefmailto:${escapeLatex(data.email)}{${escapeLatex(data.email)}}`);
+    if (data.email) contactParts.push(`\\href{mailto:${escapeLatex(data.email)}}{${escapeLatex(data.email)}}`);
     if (data.linkedin) contactParts.push(`\\href{${escapeLatex(data.linkedin)}}{LinkedIn}`);
     if (data.website) contactParts.push(`\\href{${escapeLatex(data.website)}}{Website}`);
     
