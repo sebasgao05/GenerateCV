@@ -1,0 +1,9 @@
+{
+  "name": "generate-cv-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node latex/lambda.js",
+    "build": "echo 'No build needed for static site'"
+  }
+}

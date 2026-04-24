@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper,sans,final]{moderncv}
+
+\moderncvtheme{green}
+\moderncvstyle{classic}
+
+\usepackage[scale=0.8]{geometry}
+\usepackage{fontAwesome5}
+
+% Encoding UTF-8
+\ProvidesFile{empty.xx\relax}
+
+% =====================
+% DATOS PERSONALES
+% =====================
+\ifx\emp\@empty\else\emptythis\emp\fi
+
+% Name (required)
+firstname{__NAME__}
+\lastname{}
+
+% Contacto
+\phone{__PHONE__}
+\email{__EMAIL__}
+\location{__LOCATION__}
+
+% Web (optional)
+\ifdefined\website\website{__WEBSITE__}\fi
+%\social[linkedin]{__LINKEDIN__}
+
+% Foto (optional)
+\photo[64pt][0pt]{__PHOTO_DATA__}
+
+% =====================
+% DOCUMENTO
+% =====================
+\begin{document}
+
+\makecvtitle
+
+% ===== PERFIL PROFESIONAL =====
+\section{Perfil Profesional}
+__SUMMARY__
+
+% ===== EXPERIENCIA =====
+\section{Experiencia Profesional}
+__EXPERIENCE__
+
+% ===== EDUCACIÓN =====
+\section{Educación}
+__EDUCATION__
+
+% ===== PROYECTOS =====
+\section{Proyectos}
+__PROJECTS__
+
+% ===== CERTIFICACIONES =====
+\section{Certificaciones y Cursos}
+__CERTS__
+
+% ===== HABILIDADES =====
+\section{Habilidades}
+\cvitem{Técnicas}{__SKILLS__}
+\cvitem{Idiomas}{__LANGUAGES__}
+
+% ===== OTROS =====
+__OTHER__
+
+\end{document}
