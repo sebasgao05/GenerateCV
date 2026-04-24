@@ -31,20 +31,20 @@ function generateExperience(experiences) {
     for (const exp of experiences) {
         if (!exp.company && !exp.position) continue;
         
-        const position = escapeLatex(exp.position || '');
-        const company = escapeLatex(exp.company || '');
-        const start = escapeLatex(exp.start || '');
-        const end = escapeLatex(exp.end || '');
-        const dateRange = start || end ? `${start} - ${end}` : '';
+        const lines = [];
+        if (exp.position) lines.push(`\\textbf{${escapeLatex(exp.position)}}`);
+        if (exp.company || exp.start || exp.end) {
+            const dateRange = exp.start || exp.end ? `${escapeLatex(exp.start || '')} - ${escapeLatex(exp.end || '')}` : '';
+            lines.push(`\\emph{${escapeLatex(exp.company || '')}} ${dateRange}`);
+        }
         
-        latex += `\\textbf{${position}} \\\\n`;
-        latex += `\\emph{${company}} ${dateRange}\\\n`;
+        latex += lines.join('\\\\n') + '\\\\n';
         
         if (exp.details) {
             const details = escapeLatex(exp.details);
             const bullets = details.split('\n').filter(Boolean);
             for (const bullet of bullets) {
-                latex += `• ${bullet}\\\n`;
+                latex += `\\item ${bullet}\n`;
             }
         }
         latex += '\n';
@@ -59,14 +59,14 @@ function generateEducation(education) {
     for (const edu of education) {
         if (!edu.institution && !edu.program) continue;
         
-        const institution = escapeLatex(edu.institution || '');
-        const program = escapeLatex(edu.program || '');
-        const eduStart = escapeLatex(edu.eduStart || '');
-        const eduEnd = escapeLatex(edu.eduEnd || '');
-        const dateRange = eduStart || eduEnd ? `${eduStart} - ${eduEnd}` : '';
+        const lines = [];
+        if (edu.program) lines.push(`\\textbf{${escapeLatex(edu.program)}}`);
+        if (edu.institution || edu.eduStart || edu.eduEnd) {
+            const dateRange = edu.eduStart || edu.eduEnd ? `${escapeLatex(edu.eduStart || '')} - ${escapeLatex(edu.eduEnd || '')}` : '';
+            lines.push(`\\emph{${escapeLatex(edu.institution || '')}} ${dateRange}`);
+        }
         
-        latex += `\\textbf{${program}} \\\n`;
-        latex += `\\emph{${institution}} ${dateRange}\\\n`;
+        latex += lines.join('\\\\n') + '\\\\n';
         
         if (edu.eduDetails) {
             latex += `${escapeLatex(edu.eduDetails)}\\n`;
@@ -83,42 +83,34 @@ function generateProjects(projects) {
     for (const proj of projects) {
         if (!proj.projectTitle && !proj.projectDesc) continue;
         
-        const title = escapeLatex(proj.projectTitle || '');
-        const desc = escapeLatex(proj.projectDesc || '');
+        const lines = [];
+        if (proj.projectTitle) lines.push(`\\textbf{${escapeLatex(proj.projectTitle)}}`);
+        if (proj.projectDesc) lines.push(escapeLatex(proj.projectDesc));
         
-        latex += `\\textbf{${title}} \\\n`;
-        latex += `${desc}\\\n`;
+        latex += lines.join('\\\\n') + '\\\\n\n';
     }
     return latex;
 }
 
 function generateSkills(skills) {
-    if (!skills) return '';
+    if (!skills || Object.keys(skills).every(k => !skills[k])) return '';
+    
+    const categories = [
+        { key: 'languages', label: 'Languages' },
+        { key: 'frontend', label: 'Frontend' },
+        { key: 'backend', label: 'Backend \\& Frameworks' },
+        { key: 'cloud', label: 'Cloud' },
+        { key: 'devops', label: 'DevOps \\& Tools' },
+        { key: 'testing', label: 'Testing' },
+        { key: 'databases', label: 'Databases' }
+    ];
     
     let latex = '';
-    
-    if (skills.languages) {
-        latex += `\\textbf{Languages:} ${escapeLatex(skills.languages)}\\n`;
+    for (const cat of categories) {
+        if (skills[cat.key]) {
+            latex += `\\textbf{${cat.label}:} ${escapeLatex(skills[cat.key])}\n`;
+        }
     }
-    if (skills.frontend) {
-        latex += `\\textbf{Frontend:} ${escapeLatex(skills.frontend)}\n`;
-    }
-    if (skills.backend) {
-        latex += `\\textbf{Backend \\& Frameworks:} ${escapeLatex(skills.backend)}\n`;
-    }
-    if (skills.cloud) {
-        latex += `\\textbf{Cloud:} ${escapeLatex(skills.cloud)}\n`;
-    }
-    if (skills.devops) {
-        latex += `\\textbf{DevOps \\& Tools:} ${escapeLatex(skills.devops)}\n`;
-    }
-    if (skills.testing) {
-        latex += `\\textbf{Testing:} ${escapeLatex(skills.testing)}\n`;
-    }
-    if (skills.databases) {
-        latex += `\\textbf{Databases:} ${escapeLatex(skills.databases)}\n`;
-    }
-    
     return latex;
 }
 
@@ -129,19 +121,19 @@ function generateVolunteering(volunteering) {
     for (const vol of volunteering) {
         if (!vol.title && !vol.role) continue;
         
-        const title = escapeLatex(vol.title || '');
-        const role = escapeLatex(vol.role || '');
-        const dateRange = (vol.start || vol.end) ? `${vol.start || ''} - ${vol.end || ''}` : '';
-        
-        latex += `\\textbf{${title}} \\\n`;
-        if (role || dateRange) {
-            latex += `\\textit{${role}} ${dateRange}\\\n`;
+        const lines = [];
+        if (vol.title) lines.push(`\\textbf{${escapeLatex(vol.title)}}`);
+        if (vol.role || vol.start || vol.end) {
+            const dateRange = (vol.start || vol.end) ? `${escapeLatex(vol.start || '')} - ${escapeLatex(vol.end || '')}` : '';
+            lines.push(`\\textit{${escapeLatex(vol.role || '')}} ${dateRange}`);
         }
+        
+        latex += lines.join('\\\\n') + '\\\\n';
         
         if (vol.description) {
             const bullets = escapeLatex(vol.description).split('\n').filter(Boolean);
             for (const bullet of bullets) {
-                latex += `• ${bullet}\n`;
+                latex += `\\item ${bullet}\n`;
             }
         }
         latex += '\n';
@@ -156,27 +148,42 @@ function generateCerts(certs) {
     for (const cert of certs) {
         if (!cert.certTitle && !cert.certOrg) continue;
         
-        const title = escapeLatex(cert.certTitle || '');
-        const org = escapeLatex(cert.certOrg || '');
-        const year = escapeLatex(cert.certYear || '');
+        const lines = [];
+        if (cert.certTitle) lines.push(`\\textbf{${escapeLatex(cert.certTitle)}}`);
+        if (cert.certOrg || cert.certYear) {
+            lines.push(`${escapeLatex(cert.certOrg || '')} ${escapeLatex(cert.certYear || '')}`);
+        }
         
-        latex += `\\textbf{${title}} \\\n`;
-        latex += `${org} ${year}\\\n`;
+        latex += lines.join('\\\\n') + '\\\\n\n';
     }
     return latex;
+}
+
+function buildHeader(data) {
+    const lines = [];
+    
+    if (data.name) lines.push(`\\LARGE \\\\textbf{${escapeLatex(data.name)}}`);
+    if (data.role) lines.push(`\\normalsize ${escapeLatex(data.role)}`);
+    
+    const contactParts = [];
+    if (data.location) contactParts.push(escapeLatex(data.location));
+    if (data.phone) contactParts.push(escapeLatex(data.phone));
+    if (data.email) contactParts.push(`\\hrefmailto:${escapeLatex(data.email)}{${escapeLatex(data.email)}}`);
+    if (data.linkedin) contactParts.push(`\\href{${escapeLatex(data.linkedin)}}{LinkedIn}`);
+    if (data.website) contactParts.push(`\\href{${escapeLatex(data.website)}}{Website}`);
+    
+    if (contactParts.length > 0) {
+        lines.push(contactParts.join(' \\\\n    '));
+    }
+    
+    return lines.join('\\\\n') + '\n';
 }
 
 function render(data) {
     let template = fs.readFileSync(TEMPLATE_FILE, 'utf-8');
     
-    template = template.replace(/__NAME__/g, escapeLatex(data.name || ''));
-    template = template.replace(/__ROLE__/g, escapeLatex(data.role || ''));
-    template = template.replace(/__PHONE__/g, escapeLatex(data.phone || ''));
-    template = template.replace(/__EMAIL__/g, escapeLatex(data.email || ''));
-    template = template.replace(/__LOCATION__/g, escapeLatex(data.location || ''));
-    template = template.replace(/__WEBSITE__/g, escapeLatex(data.website || ''));
-    template = template.replace(/__LINKEDIN__/g, escapeLatex(data.linkedin || ''));
-    template = template.replace(/__EMAIL___/g, escapeLatex(data.email || ''));
+    const header = buildHeader(data);
+    template = template.replace('__HEADER__', header);
     template = template.replace(/__SUMMARY__/g, escapeLatex(data.summary || ''));
     template = template.replace(/__EXPERIENCE__/g, generateExperience(data.experiences));
     template = template.replace(/__SKILLS__/g, generateSkills(data.skills));
