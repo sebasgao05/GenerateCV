@@ -92,6 +92,63 @@ function generateProjects(projects) {
     return latex;
 }
 
+function generateSkills(skills) {
+    if (!skills) return '';
+    
+    let latex = '';
+    
+    if (skills.languages) {
+        latex += `\\textbf{Languages:} ${escapeLatex(skills.languages)}\\n`;
+    }
+    if (skills.frontend) {
+        latex += `\\textbf{Frontend:} ${escapeLatex(skills.frontend)}\n`;
+    }
+    if (skills.backend) {
+        latex += `\\textbf{Backend \\& Frameworks:} ${escapeLatex(skills.backend)}\n`;
+    }
+    if (skills.cloud) {
+        latex += `\\textbf{Cloud:} ${escapeLatex(skills.cloud)}\n`;
+    }
+    if (skills.devops) {
+        latex += `\\textbf{DevOps \\& Tools:} ${escapeLatex(skills.devops)}\n`;
+    }
+    if (skills.testing) {
+        latex += `\\textbf{Testing:} ${escapeLatex(skills.testing)}\n`;
+    }
+    if (skills.databases) {
+        latex += `\\textbf{Databases:} ${escapeLatex(skills.databases)}\n`;
+    }
+    
+    return latex;
+}
+
+function generateVolunteering(volunteering) {
+    if (!volunteering || volunteering.length === 0) return '';
+    
+    let latex = '';
+    for (const vol of volunteering) {
+        if (!vol.title && !vol.role) continue;
+        
+        const title = escapeLatex(vol.title || '');
+        const role = escapeLatex(vol.role || '');
+        const dateRange = (vol.start || vol.end) ? `${vol.start || ''} - ${vol.end || ''}` : '';
+        
+        latex += `\\textbf{${title}} \\\n`;
+        if (role || dateRange) {
+            latex += `\\textit{${role}} ${dateRange}\\\n`;
+        }
+        
+        if (vol.description) {
+            const bullets = escapeLatex(vol.description).split('\n').filter(Boolean);
+            for (const bullet of bullets) {
+                latex += `• ${bullet}\n`;
+            }
+        }
+        latex += '\n';
+    }
+    return latex;
+}
+
 function generateCerts(certs) {
     if (!certs || certs.length === 0) return '';
     
@@ -118,12 +175,15 @@ function render(data) {
     template = template.replace(/__EMAIL__/g, escapeLatex(data.email || ''));
     template = template.replace(/__LOCATION__/g, escapeLatex(data.location || ''));
     template = template.replace(/__WEBSITE__/g, escapeLatex(data.website || ''));
+    template = template.replace(/__LINKEDIN__/g, escapeLatex(data.linkedin || ''));
+    template = template.replace(/__EMAIL___/g, escapeLatex(data.email || ''));
     template = template.replace(/__SUMMARY__/g, escapeLatex(data.summary || ''));
     template = template.replace(/__EXPERIENCE__/g, generateExperience(data.experiences));
+    template = template.replace(/__SKILLS__/g, generateSkills(data.skills));
     template = template.replace(/__EDUCATION__/g, generateEducation(data.education));
-    template = template.replace(/__PROJECTS__/g, generateProjects(data.projects));
     template = template.replace(/__CERTS__/g, generateCerts(data.certs));
-    template = template.replace(/__SKILLS__/g, escapeLatex(data.skills || ''));
+    template = template.replace(/__VOLUNTEERING__/g, generateVolunteering(data.volunteering));
+    template = template.replace(/__PROJECTS__/g, generateProjects(data.projects));
     
     fs.writeFileSync('document.tex', template);
     return template;

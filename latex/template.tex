@@ -1,32 +1,53 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{geometry}
-\geometry{a4paper,margin=2cm}
 
-\title{CV}
-\author{}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{changepage}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
 
 \begin{document}
 
-\maketitle
-\noindent
-\textbf{\huge __NAME__} 
+\begin{adjustwidth}{-0.5cm}{-0.5cm}
+\begin{center}
+    {\LARGE \textbf{__NAME__}}\\
+    __ROLE__ \\
+    __LOCATION__ \\
+    __PHONE__ \\
+    \hrefmailto:__EMAIL__{__EMAIL__} \\
+    \href{__LINKEDIN__}{LinkedIn} \\
+    \href{__WEBSITE__}{Website}
+\end{center}
+\end{adjustwidth}
 
-\textit{__ROLE__} 
-
-__EMAIL__ | __PHONE__ | __LOCATION__ 
-
-\section{Perfil Profesional}
+\section*{Summary}
 __SUMMARY__
 
-\section{Experiencia}
+\section*{Professional Experience}
 __EXPERIENCE__
 
-\section{Educacion}
+\section*{Technical Skills}
+__SKILLS__
+
+\section*{Education}
 __EDUCATION__
 
-\section{Habilidades}
-__SKILLS__ 
+\section*{Certifications}
+__CERTS__
+
+\section*{Volunteering}
+__VOLUNTEERING__
+
+\section*{Projects}
+__PROJECTS__
 
 \end{document}
