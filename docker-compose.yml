@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./index.html:/app/index.html
+      - ./styles:/app/styles
+      - ./logic:/app/logic
+      - ./libs:/app/libs
+      - ./img:/app/img
+
+  latex-generator:
+    build:
+      context: ./latex
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
