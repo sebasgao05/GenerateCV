@@ -5,10 +5,6 @@ const path = require('path');
 const TEMPLATE_FILE = 'template.tex';
 const OUTPUT_FILE = 'document.pdf';
 
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function escapeLatex(text) {
     if (!text) return '';
     return text
@@ -24,6 +20,10 @@ function escapeLatex(text) {
         .replace(/\^/g, '\\textasciicircum{}');
 }
 
+function line() {
+    return '\\\\ ';
+}
+
 function generateExperience(experiences) {
     if (!experiences || experiences.length === 0) return '';
     
@@ -31,20 +31,17 @@ function generateExperience(experiences) {
     for (const exp of experiences) {
         if (!exp.company && !exp.position) continue;
         
-        const lines = [];
-        if (exp.position) lines.push(`\\textbf{${escapeLatex(exp.position)}}`);
-        if (exp.company || exp.start || exp.end) {
-            const dateRange = exp.start || exp.end ? `${escapeLatex(exp.start || '')} - ${escapeLatex(exp.end || '')}` : '';
-            lines.push(`\\emph{${escapeLatex(exp.company || '')}} ${dateRange}`);
-        }
+        const position = exp.position ? `\\textbf{${escapeLatex(exp.position)}}` : '';
+        const company = exp.company ? `\\emph{${escapeLatex(exp.company)}}` : '';
+        const dateRange = (exp.start || exp.end) ? `${escapeLatex(exp.start || '')} - ${escapeLatex(exp.end || '')}` : '';
         
-        latex += lines.join('\\\\n') + '\\\\n';
+        if (position) latex += position + line();
+        if (company || dateRange) latex += `${company} ${dateRange}` + line();
         
         if (exp.details) {
-            const details = escapeLatex(exp.details);
-            const bullets = details.split('\n').filter(Boolean);
+            const bullets = exp.details.split('\n').filter(Boolean);
             for (const bullet of bullets) {
-                latex += `\\item ${bullet}\n`;
+                latex += `\\item ${escapeLatex(bullet)}\n`;
             }
         }
         latex += '\n';
@@ -59,17 +56,15 @@ function generateEducation(education) {
     for (const edu of education) {
         if (!edu.institution && !edu.program) continue;
         
-        const lines = [];
-        if (edu.program) lines.push(`\\textbf{${escapeLatex(edu.program)}}`);
-        if (edu.institution || edu.eduStart || edu.eduEnd) {
-            const dateRange = edu.eduStart || edu.eduEnd ? `${escapeLatex(edu.eduStart || '')} - ${escapeLatex(edu.eduEnd || '')}` : '';
-            lines.push(`\\emph{${escapeLatex(edu.institution || '')}} ${dateRange}`);
-        }
+        const program = edu.program ? `\\textbf{${escapeLatex(edu.program)}}` : '';
+        const institution = edu.institution ? `\\emph{${escapeLatex(edu.institution)}}` : '';
+        const dateRange = (edu.eduStart || edu.eduEnd) ? `${escapeLatex(edu.eduStart || '')} - ${escapeLatex(edu.eduEnd || '')}` : '';
         
-        latex += lines.join('\\\\n') + '\\\\n';
+        if (program) latex += program + line();
+        if (institution || dateRange) latex += `${institution} ${dateRange}` + line();
         
         if (edu.eduDetails) {
-            latex += `${escapeLatex(edu.eduDetails)}\\n`;
+            latex += escapeLatex(edu.eduDetails) + '\n';
         }
         latex += '\n';
     }
@@ -83,11 +78,12 @@ function generateProjects(projects) {
     for (const proj of projects) {
         if (!proj.projectTitle && !proj.projectDesc) continue;
         
-        const lines = [];
-        if (proj.projectTitle) lines.push(`\\textbf{${escapeLatex(proj.projectTitle)}}`);
-        if (proj.projectDesc) lines.push(escapeLatex(proj.projectDesc));
+        const title = proj.projectTitle ? `\\textbf{${escapeLatex(proj.projectTitle)}}` : '';
+        const desc = proj.projectDesc ? escapeLatex(proj.projectDesc) : '';
         
-        latex += lines.join('\\\\n') + '\\\\n\n';
+        if (title) latex += title + line();
+        if (desc) latex += desc + line();
+        latex += '\n';
     }
     return latex;
 }
@@ -121,19 +117,17 @@ function generateVolunteering(volunteering) {
     for (const vol of volunteering) {
         if (!vol.title && !vol.role) continue;
         
-        const lines = [];
-        if (vol.title) lines.push(`\\textbf{${escapeLatex(vol.title)}}`);
-        if (vol.role || vol.start || vol.end) {
-            const dateRange = (vol.start || vol.end) ? `${escapeLatex(vol.start || '')} - ${escapeLatex(vol.end || '')}` : '';
-            lines.push(`\\textit{${escapeLatex(vol.role || '')}} ${dateRange}`);
-        }
+        const title = vol.title ? `\\textbf{${escapeLatex(vol.title)}}` : '';
+        const role = vol.role ? `\\emph{${escapeLatex(vol.role)}}` : '';
+        const dateRange = (vol.start || vol.end) ? `${escapeLatex(vol.start || '')} - ${escapeLatex(vol.end || '')}` : '';
         
-        latex += lines.join('\\\\n') + '\\\\n';
+        if (title) latex += title + line();
+        if (role || dateRange) latex += `${role} ${dateRange}` + line();
         
         if (vol.description) {
-            const bullets = escapeLatex(vol.description).split('\n').filter(Boolean);
+            const bullets = vol.description.split('\n').filter(Boolean);
             for (const bullet of bullets) {
-                latex += `\\item ${bullet}\n`;
+                latex += `\\item ${escapeLatex(bullet)}\n`;
             }
         }
         latex += '\n';
@@ -148,22 +142,26 @@ function generateCerts(certs) {
     for (const cert of certs) {
         if (!cert.certTitle && !cert.certOrg) continue;
         
-        const lines = [];
-        if (cert.certTitle) lines.push(`\\textbf{${escapeLatex(cert.certTitle)}}`);
-        if (cert.certOrg || cert.certYear) {
-            lines.push(`${escapeLatex(cert.certOrg || '')} ${escapeLatex(cert.certYear || '')}`);
-        }
+        const title = cert.certTitle ? `\\textbf{${escapeLatex(cert.certTitle)}}` : '';
+        const org = cert.certOrg ? escapeLatex(cert.certOrg) : '';
+        const year = cert.certYear ? escapeLatex(cert.certYear) : '';
         
-        latex += lines.join('\\\\n') + '\\\\n\n';
+        if (title) latex += title + line();
+        if (org || year) latex += `${org} ${year}` + line();
+        latex += '\n';
     }
     return latex;
 }
 
 function buildHeader(data) {
-    const lines = [];
+    const parts = [];
     
-    if (data.name) lines.push(`\\LARGE \\\\textbf{${escapeLatex(data.name)}}`);
-    if (data.role) lines.push(`\\normalsize ${escapeLatex(data.role)}`);
+    if (data.name) {
+        parts.push(`{\\LARGE \\textbf{${escapeLatex(data.name)}}}`);
+    }
+    if (data.role) {
+        parts.push(`{\\normalsize ${escapeLatex(data.role)}}`);
+    }
     
     const contactParts = [];
     if (data.location) contactParts.push(escapeLatex(data.location));
@@ -173,24 +171,23 @@ function buildHeader(data) {
     if (data.website) contactParts.push(`\\href{${escapeLatex(data.website)}}{Website}`);
     
     if (contactParts.length > 0) {
-        lines.push(contactParts.join(' \\\\n    '));
+        parts.push(contactParts.join(' \\\\ '));
     }
     
-    return lines.join('\\\\n') + '\n';
+    return parts.join('\\\\ ');
 }
 
 function render(data) {
     let template = fs.readFileSync(TEMPLATE_FILE, 'utf-8');
     
-    const header = buildHeader(data);
-    template = template.replace('__HEADER__', header);
-    template = template.replace(/__SUMMARY__/g, escapeLatex(data.summary || ''));
-    template = template.replace(/__EXPERIENCE__/g, generateExperience(data.experiences));
-    template = template.replace(/__SKILLS__/g, generateSkills(data.skills));
-    template = template.replace(/__EDUCATION__/g, generateEducation(data.education));
-    template = template.replace(/__CERTS__/g, generateCerts(data.certs));
-    template = template.replace(/__VOLUNTEERING__/g, generateVolunteering(data.volunteering));
-    template = template.replace(/__PROJECTS__/g, generateProjects(data.projects));
+    template = template.replace('__HEADER__', buildHeader(data));
+    template = template.replace('__SUMMARY__', escapeLatex(data.summary || ''));
+    template = template.replace('__EXPERIENCE__', generateExperience(data.experiences));
+    template = template.replace('__SKILLS__', generateSkills(data.skills));
+    template = template.replace('__EDUCATION__', generateEducation(data.education));
+    template = template.replace('__CERTS__', generateCerts(data.certs));
+    template = template.replace('__VOLUNTEERING__', generateVolunteering(data.volunteering));
+    template = template.replace('__PROJECTS__', generateProjects(data.projects));
     
     fs.writeFileSync('document.tex', template);
     return template;
