@@ -1,68 +1,48 @@
-\documentclass[11pt,a4paper,sans,final]{moderncv}
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper,margin=2cm}
+\usepackage{hyperref}
+\usepackage{iftex}
 
-\moderncvtheme{green}
-\moderncvstyle{classic}
+\ifLuaTeX
+  \usepackage{fontspec}
+\else
+  \usepackage[T1]{fontenc}
+\fi
 
-\usepackage[scale=0.8]{geometry}
-\usepackage{fontAwesome5}
+\title{CV}
+\author{}
+\date{}
 
-% Encoding UTF-8
-\ProvidesFile{empty.xx\relax}
-
-% =====================
-% DATOS PERSONALES
-% =====================
-\ifx\emp\@empty\else\emptythis\emp\fi
-
-% Name (required)
-firstname{__NAME__}
-\lastname{}
-
-% Contacto
-\phone{__PHONE__}
-\email{__EMAIL__}
-\location{__LOCATION__}
-
-% Web (optional)
-\ifdefined\website\website{__WEBSITE__}\fi
-%\social[linkedin]{__LINKEDIN__}
-
-% Foto (optional)
-\photo[64pt][0pt]{__PHOTO_DATA__}
-
-% =====================
-% DOCUMENTO
-% =====================
 \begin{document}
 
-\makecvtitle
+\maketitle
+\noindent
+\textbf{\huge __NAME__} \\[0.5em]
+\textit{__ROLE__} \\[0.5em]
+\verb|__EMAIL__| $\cdot$ \verb|__PHONE__| $\cdot$ __LOCATION__ \\
+__WEBSITE__ \\[1em]
 
-% ===== PERFIL PROFESIONAL =====
 \section{Perfil Profesional}
 __SUMMARY__
 
-% ===== EXPERIENCIA =====
 \section{Experiencia Profesional}
 __EXPERIENCE__
 
-% ===== EDUCACIÓN =====
 \section{Educación}
 __EDUCATION__
 
-% ===== PROYECTOS =====
 \section{Proyectos}
 __PROJECTS__
 
-% ===== CERTIFICACIONES =====
-\section{Certificaciones y Cursos}
+\section{Certificaciones}
 __CERTS__
 
-% ===== HABILIDADES =====
 \section{Habilidades}
-\cvitem{Técnicas}{__SKILLS__}
-\cvitem{Idiomas}{__LANGUAGES__}
-
-% ===== OTROS =====
+\textbf{Técnicas:} __SKILL__ \\
+\textbf{Idiomas:} __LANGUAGES__ \\[0.5em]
 __OTHER__
 
 \end{document}
